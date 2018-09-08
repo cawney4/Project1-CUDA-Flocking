@@ -329,7 +329,10 @@ __global__ void kernUpdateVelocityBruteForce(int N, glm::vec3 *pos,
     glm::vec3 vel = vel1[index] + computeVelocityChange(N, index, pos, vel1);
 
   // Clamp the speed
-    vel = glm::clamp(vel, -maxSpeed, maxSpeed);
+    float length = glm::length(vel);
+    if (length > maxSpeed) {
+        vel = (vel / length) * maxSpeed;
+    }
 
   // Record the new velocity into vel2. Question: why NOT vel1?
     vel2[index] = vel;
@@ -515,7 +518,10 @@ __global__ void kernUpdateVelNeighborSearchScattered(
 
   // - Clamp the speed change before putting the new speed in vel2
     glm::vec3 nVel = vel1[particleArrayIndices[index]] + delta;
-    nVel = glm::clamp(nVel, -maxSpeed, maxSpeed);
+    float length = glm::length(nVel);
+    if (length > maxSpeed) {
+        nVel = (nVel / length) * maxSpeed;
+    }
 
     vel2[particleArrayIndices[index]] = nVel;
 }
@@ -619,7 +625,10 @@ __global__ void kernUpdateVelNeighborSearchCoherent(
 
   // - Clamp the speed change before putting the new speed in vel2
     glm::vec3 nVel = vel1[index] + delta;
-    nVel = glm::clamp(nVel, -maxSpeed, maxSpeed);
+    float length = glm::length(nVel);
+    if (length > maxSpeed) {
+        nVel = (nVel / length) * maxSpeed;
+    }
 
     vel2[index] = nVel;
 }

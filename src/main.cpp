@@ -13,7 +13,7 @@
 // ================
 
 // LOOK-2.1 LOOK-2.3 - toggles for UNIFORM_GRID and COHERENT_GRID
-#define VISUALIZE 1
+#define VISUALIZE 0
 #define UNIFORM_GRID 1
 #define COHERENT_GRID 1
 
@@ -30,6 +30,30 @@ int main(int argc, char* argv[]) {
   if (init(argc, argv)) {
     mainLoop();
     Boids::endSimulation();
+
+    std::string sim_type = "";
+    if (!UNIFORM_GRID && !COHERENT_GRID) {
+        sim_type += "Naive, ";
+    }
+    if (UNIFORM_GRID) {
+        sim_type += "Uniform Grid, ";
+    }
+    if (COHERENT_GRID) {
+        sim_type += "Coherent, ";
+    }
+
+    if (VISUALIZE) {
+        sim_type += "VIS";
+    }
+    else {
+        sim_type += "NO VIS";
+    }
+    std::string fileName = "output_5000boids_128blocks.txt";
+    outputFile.open(fileName, std::ios::out | std::ios::app);
+    outputFile << sim_type << std::endl;
+    outputFile << "Average fps: " << fps_total / count << std::endl << std::endl;
+    outputFile.close();
+
     return 0;
   } else {
     return 1;
@@ -230,6 +254,10 @@ void initShaders(GLuint * program) {
         fps = frame / (time - timebase);
         timebase = time;
         frame = 0;
+
+        // Store variables to calculate average fps
+        fps_total += fps;
+        count++;
       }
 
       runCUDA();
