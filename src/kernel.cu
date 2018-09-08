@@ -418,40 +418,84 @@ __global__ void kernUpdateVelNeighborSearchScattered(
         return;
     }
   // - Identify the grid cell that this particle is in
-    glm::vec3 iCell = (pos[index] - gridMinimum) * inverseCellWidth;
-    //int iGrid = gridIndex3Dto1D(iCell.x, iCell.y, iCell.z, gridResolution);
+    //glm::vec3 iCell = (pos[index] - gridMinimum) * inverseCellWidth;
+
   // - Identify which cells may contain neighbors. This isn't always 8.
-    int cells2Check[8] = { -1 };
+    glm::vec3 iPos = pos[index] - gridMinimum;
 
+    float neighborDistance = imax(imax(rule1Distance, rule2Distance), rule3Distance);
 
-    glm::vec3 quad = glm::fract(iCell);
-    //glm::vec3 rounded = glm::round(quad);
+    glm::vec3 maxPos = glm::vec3(iPos.x + neighborDistance, iPos.y + neighborDistance, iPos.z + neighborDistance);
+    glm::vec3 minPos = glm::vec3(iPos.x - neighborDistance, iPos.y - neighborDistance, iPos.z - neighborDistance);
 
-    glm::vec3 delta; // = rounded;
-    for (unsigned int i = 0; i < 3; i++) {
-        if (quad[i] < 0.5f) {
-            delta[i] = -1;
-        }
-        else {
-            delta[i] = 1;
-        }
-    }
+    maxPos = glm::clamp(maxPos, -scene_scale, scene_scale);
+    minPos = glm::clamp(minPos, -scene_scale, scene_scale);
 
-    // Store the neighboring cells
-    // gridIndex3Dto1D checks if cell is out of bounds
-    cells2Check[0] = gridIndex3Dto1D(iCell.x, iCell.y, iCell.z, gridResolution);
-    cells2Check[1] = gridIndex3Dto1D(iCell.x, iCell.y + delta.y, iCell.z, gridResolution);
-    cells2Check[2] = gridIndex3Dto1D(iCell.x, iCell.y, iCell.z + delta.z, gridResolution);
-    cells2Check[3] = gridIndex3Dto1D(iCell.x, iCell.y + delta.y, iCell.z + delta.z, gridResolution);
-    cells2Check[4] = gridIndex3Dto1D(iCell.x + delta.x, iCell.y, iCell.z, gridResolution);
-    cells2Check[5] = gridIndex3Dto1D(iCell.x + delta.x, iCell.y + delta.y, iCell.z, gridResolution);
-    cells2Check[6] = gridIndex3Dto1D(iCell.x + delta.x, iCell.y, iCell.z + delta.z, gridResolution);
-    cells2Check[7] = gridIndex3Dto1D(iCell.x + delta.x, iCell.y + delta.y, iCell.z + delta.z, gridResolution);
-    
+    glm::vec3 maxCell = maxPos * gridInverseCellWidth;
+    glm::vec3 minCell = minPos * gridInverseCellWidth;
+
   // - For each cell, read the start/end indices in the boid pointer array.
   // - Access each boid in the cell and compute velocity change from
   //   the boids rules, if this boid is within the neighborhood distance.
+    glm::vec3 cm;
+    glm::vec3 c;
+    glm::vec3 perceived_velocity;
+    unsigned int n_1 = 0;
+    unsigned int n_3 = 0;
+
+    for (unsigned int i = minPos.x; i <= maxPos.x; i++) {
+        for (unsigned int j = minPos.y; j <= maxPos.y; j++) {
+            for (unsigned int k = minPos.z; k <= maxPos.z; k++) {
+                int cellIndex = gridIndex3Dto1D(i, j, k, gridResolution);
+
+                if (dev_gridCellStartIndices[cellIndex] > -1) {
+                    for (unsigned int iter = dev_gridCellStartIndices[cellIndex]; iter <= dev_gridCellEndIndices[cellIndex]; iter++) {
+                        int otherBoid = dev_particleGridIndices[iter];
+                        int otherBoidIndex = dev_particleArrayIndices[otherBoid];
+
+                        // Calculate velocity delta
+                        float dist = glm::distance(pos[index], pos[otherBoidIndex]);
+
+                        // Rule 1: boids fly towards their local perceived center of mass, which excludes themselves
+                        if (dist < rule1Distance) {
+                            cm += pos[otherBoidIndex];
+                            n_1++;
+                        }
+                        // Rule 2: boids try to stay a distance d away from each other
+                        if (dist < rule2Distance) {
+                            c -= (pos[otherBoidIndex] - pos[index]);
+                        }
+                        // Rule 3: boids try to match the speed of surrounding boids
+                        if (dist < rule3Distance) {
+                            perceived_velocity += vel1[otherBoidIndex];
+                            n_3++;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    glm::vec3 delta;
+
+    // Rule 1
+    if (n_1 != 0) {
+        cm /= n_1;
+        delta += (cm - pos[index]) * rule1Scale;
+    }
+    // Rule 2
+    delta += c * rule2Scale;
+    // Rule 3
+    if (n_3 != 0) {
+        perceived_velocity /= n_3;
+        delta += perceived_velocity * rule3Scale;
+    }
+
   // - Clamp the speed change before putting the new speed in vel2
+    glm::vec3 nVel = vel1[index] + delta;
+    nVel = glm::clamp(nVel, -maxSpeed, maxSpeed);
+
+    vel2[index] = nVel;
 }
 
 __global__ void kernUpdateVelNeighborSearchCoherent(
