@@ -42,8 +42,14 @@ Performance Questions and Answers:
 **Uniform Grid**: Surprisingly, performance gets better as the number of boids increases. I've heard that GPUs can perform faster when larger blocks of threads are used. My guess is that's why my results are like so.  
 **Coherent**: Similar to uniform grid, the performance increases as the number of boids increases.  
   
-*For each implementation, how does changing the block count and block size affect performance? Why do you think this is?*  
+*For each implementation, how does changing the block count and block size affect performance? Why do you think this is?*   
+
+For all implementations, changing the block size did not significantly affect performance. I think this is because we need much more than 1024 threads, the maximum block size. Therefore, the blocks must be queued even at max block size, and we cannot go any faster.  
 
 *For the coherent uniform grid: did you experience any performance improvements with the more coherent uniform grid? Was this the outcome you expected? Why or why not?*  
 
+No, I did not see any performance improvements. In fact, it was sometimes slower to use the coherent uniform grid. This was not what I expected because I thought it would be faster. I expected lining up the boids more contiguously in memory would mean faster access to them. Seeing my results, my guess is that the extra steps to reshuffle the position/velocity data were too slow. It slowed down the process enough that the contiguous memory could not make up for it.  
+
 *Did changing cell width and checking 27 vs 8 neighboring cells affect performance? Why or why not? Be careful: it is insufficient (and possibly incorrect) to say that 27-cell is slower simply because there are more cells to check!*  
+
+No, changing the cell width did not affect performance. Even though we are checking more neighboring cells with a smaller width, we check for less boids in each cell. In other words, a large cell has a higher chance of encompassing more boids that are too far to influence the current boid. On the other hand, a small cell has a lower chance of encountering such boids.
