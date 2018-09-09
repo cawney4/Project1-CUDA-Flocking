@@ -6,7 +6,9 @@ Project 1 - Flocking**
   * [LinkedIn](linkedin.com/in/conniechang44), [Demo Reel](vimeo.com/ConChang/DemoReel)
 * Tested on: Windows 10, Intel Xeon CPU E5-1630 v4 @ 3.70 GHz, GTX 1070 8GB (SIG Lab)
 
-This project consists of three different algorithms for flocking, and a performance analysis.
+Introduction
+-------------
+This project consists of three different algorithms for flocking, and a performance analysis. Everthing is written in CUDA for the GPU. I was responsible for implementing the flocking algorithms, the neighborhood search, and invoking CUDA kernels.
 
 10,000 particles flocking together
 ![](images/10K.gif)
