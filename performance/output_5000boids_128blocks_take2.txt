@@ -1,0 +1,24 @@
+Naive, VIS
+Average fps: 337.955
+
+Uniform Grid, VIS
+Average fps: 460.023
+
+Uniform Grid, Coherent, VIS
+Average fps: 424.042
+
+Naive, NO VIS
+Average fps: 543.884
+
+Uniform Grid, NO VIS
+Average fps: 860.128
+
+Uniform Grid, Coherent, NO VIS
+Average fps: 786.732
+
+Uniform Grid, NO VIS
+Average fps: 831.391
+
+Uniform Grid, Coherent, VIS
+Average fps: 430.894
+

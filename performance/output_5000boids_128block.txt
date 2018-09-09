@@ -1,0 +1,54 @@
+Naive, VIS
+Average fps: 357.328
+
+Naive, NO VIS
+Average fps: 554.034
+
+Uniform Grid, VIS
+Average fps: 440.004
+
+Uniform Grid, NO VIS
+Average fps: 801.031
+
+Uniform Grid, Coherent, VIS
+Average fps: 430.916
+
+Uniform Grid, Coherent, NO VIS
+Average fps: 759.633
+
+Naive, VIS
+Average fps: 340.335
+
+Naive, NO VIS
+Average fps: 550.725
+
+Uniform Grid, VIS
+Average fps: 428.152
+
+Uniform Grid, NO VIS
+Average fps: 813.542
+
+Uniform Grid, Coherent, VIS
+Average fps: 476.203
+
+Uniform Grid, Coherent, NO VIS
+Average fps: 763.405
+
+Naive, VIS
+Average fps: 342.638
+
+Naive, NO VIS
+Average fps: 547.646
+
+Uniform Grid, VIS
+Average fps: 435.811
+
+Uniform Grid, NO VIS
+Average fps: 761.638
+
+Uniform Grid, Coherent, VIS
+Average fps: 448.705
+
+Uniform Grid, Coherent, NO VIS
+Average fps: 779.181
+
