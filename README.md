@@ -19,6 +19,8 @@ The three algorithms are:
 * Uniform Grid: Breaking the space into voxels, and only checking nearby voxels.
 * Coherent Uniform Grid: The same as Uniform Grid, but with structuring particle data as contiguously as possible  
 
+Performance Graphs
+------------------
 A graph comparing the performance of each algorithm.  
 ![](images/Default_5000Boids_128BlockSize.png)  
   
